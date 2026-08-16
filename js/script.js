@@ -174,22 +174,26 @@ document.addEventListener("DOMContentLoaded", function () {
             };
 
             try {
-                const response = await fetch('/api/send-quote', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
+                const subject = `Quote Inquiry: ${formData.neckSize || 'General'} - ${formData.name || ''}`;
+                const bodyLines = [
+                    `Name: ${formData.name}`,
+                    `Email: ${formData.email}`,
+                    `Phone: ${formData.phone}`,
+                    `Neck Size: ${formData.neckSize}`,
+                    '',
+                    'Message:',
+                    formData.message
+                ];
 
-                const result = await response.json().catch(() => ({ success: false, message: 'Server did not return valid JSON.' }));
+                const mailto = `mailto:infociplon@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
 
-                if (response.ok && result.success) {
-                    showFormMessage("Thank you! Your inquiry has been sent successfully.");
-                    quoteForm.reset();
-                } else {
-                    showFormMessage("Error: " + (result.message || 'Unable to send inquiry.'), 'error');
-                }
+                // Open the user's default mail client with a new prefilled email
+                window.location.href = mailto;
+
+                showFormMessage("Opening your email client. Please review and send the email to complete the inquiry.");
+                quoteForm.reset();
             } catch (error) {
-                showFormMessage("Could not submit inquiry. Make sure the server is running.", 'error');
+                showFormMessage("Could not open email client.", 'error');
             } finally {
                 submitBtn.innerText = originalBtnText;
                 submitBtn.disabled = false;
