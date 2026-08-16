@@ -142,64 +142,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     initVideoPlaylist();
 
-    // CONTACT FORM SUBMISSION LOGIC
-    const quoteForm = id("quoteForm");
-    const formMessage = document.getElementById("formMessage");
-
-    function showFormMessage(text, type = 'success') {
-        if (!formMessage) return;
-        formMessage.textContent = text;
-        formMessage.className = `form-message ${type}`;
-    }
-
-    if (quoteForm) {
-        quoteForm.addEventListener("submit", async function (event) {
-            event.preventDefault();
-
-            const submitBtn = quoteForm.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerText;
-            submitBtn.innerText = "Sending Inquiry...";
-            submitBtn.disabled = true;
-            if (formMessage) {
-                formMessage.textContent = '';
-                formMessage.className = 'form-message';
-            }
-
-            const formData = {
-                name: id("name").value,
-                email: id("email").value,
-                phone: id("phone").value,
-                neckSize: id("neckSize").value,
-                message: id("message").value
-            };
-
-            try {
-                const subject = `Quote Inquiry: ${formData.neckSize || 'General'} - ${formData.name || ''}`;
-                const bodyLines = [
-                    `Name: ${formData.name}`,
-                    `Email: ${formData.email}`,
-                    `Phone: ${formData.phone}`,
-                    `Neck Size: ${formData.neckSize}`,
-                    '',
-                    'Message:',
-                    formData.message
-                ];
-
-                const mailto = `mailto:infociplon@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
-
-                // Open the user's default mail client with a new prefilled email
-                window.location.href = mailto;
-
-                showFormMessage("Opening your email client. Please review and send the email to complete the inquiry.");
-                quoteForm.reset();
-            } catch (error) {
-                showFormMessage("Could not open email client.", 'error');
-            } finally {
-                submitBtn.innerText = originalBtnText;
-                submitBtn.disabled = false;
-            }
-        });
-    }
 });
 
 // Mobile Hamburger Menu Toggle
