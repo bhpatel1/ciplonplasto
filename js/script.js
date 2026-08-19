@@ -1,164 +1,96 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // CAROUSEL / SLIDER LOGIC
-    const track = id("carouselTrack");
-    const slides = Array.from(track.children);
-    const nextBtn = id("nextBtn");
-    const prevBtn = id("prevBtn");
-    const navDotsContainer = id("carouselNav");
+document.addEventListener('DOMContentLoaded', () => {
+    const whatsappNumber = '919429107235';
+    const whatsappWidget = document.createElement('aside');
+    whatsappWidget.className = 'whatsapp-widget';
+    whatsappWidget.innerHTML = `
+        <div class="whatsapp-panel" aria-hidden="true">
+            <div class="whatsapp-panel-header">
+                <div class="whatsapp-panel-icon"><i class="fab fa-whatsapp"></i></div>
+                <div>
+                    <h2>Start a Conversation</h2>
+                    <p>Hi! Click below to chat with us on WhatsApp.</p>
+                </div>
+            </div>
+            <div class="whatsapp-panel-body">
+                <p class="whatsapp-greeting">Hello! Welcome to Ciplon Plasto. Thank you for contacting us via our website.</p>
+                <a class="whatsapp-agent" href="https://wa.me/${whatsappNumber}?text=Hello%20Ciplon%20Plasto%2C%20I%20need%20help%20with%20PET%20preforms." target="_blank" rel="noopener noreferrer">
+                    <span class="whatsapp-agent-avatar"><i class="fab fa-whatsapp"></i></span>
+                    <span class="whatsapp-agent-copy"><strong>Ciplon Plasto</strong><small>Chat with Ciplon Plasto</small></span>
+                    <i class="fab fa-whatsapp whatsapp-agent-link"></i>
+                </a>
+            </div>
+        </div>
+        <div class="whatsapp-tooltip" aria-hidden="true">Need Help? Chat with us</div>
+        <button class="whatsapp-launcher" type="button" aria-label="Open WhatsApp chat" aria-expanded="false">
+            <i class="fab fa-whatsapp whatsapp-open-icon"></i>
+            <i class="fas fa-times whatsapp-close-icon"></i>
+        </button>
+    `;
+    document.body.appendChild(whatsappWidget);
 
-    let currentIndex = 0;
-    let autoSlideInterval;
+    const whatsappLauncher = whatsappWidget.querySelector('.whatsapp-launcher');
+    const whatsappPanel = whatsappWidget.querySelector('.whatsapp-panel');
+    const whatsappTooltip = whatsappWidget.querySelector('.whatsapp-tooltip');
 
-    function id(name) { return document.getElementById(name); }
+    whatsappLauncher.addEventListener('click', () => {
+        const isOpen = whatsappWidget.classList.toggle('is-open');
+        whatsappLauncher.setAttribute('aria-expanded', String(isOpen));
+        whatsappLauncher.setAttribute('aria-label', isOpen ? 'Close WhatsApp chat' : 'Open WhatsApp chat');
+        whatsappPanel.setAttribute('aria-hidden', String(!isOpen));
+        whatsappTooltip.setAttribute('aria-hidden', String(isOpen));
+    });
 
-    // Dynamically create dot indicators based on number of slides
-    slides.forEach((_, index) => {
-        const dot = document.createElement("div");
-        dot.classList.add("carousel-dot");
-        if (index === 0) dot.classList.add("active");
-        dot.addEventListener("click", () => {
-            goToSlide(index);
-            resetAutoSlide();
+    const menuToggle = document.querySelector('.menu-toggle');
+    const mainNav = document.querySelector('.main-nav');
+
+    if (menuToggle && mainNav) {
+        menuToggle.addEventListener('click', () => {
+            const isOpen = mainNav.classList.toggle('is-open');
+            menuToggle.setAttribute('aria-expanded', String(isOpen));
         });
-        navDotsContainer.appendChild(dot);
-    });
 
-    const dots = Array.from(navDotsContainer.children);
-
-    function updateCarousel() {
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
-        dots.forEach((dot, idx) => {
-            dot.classList.toggle("active", idx === currentIndex);
+        mainNav.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                mainNav.classList.remove('is-open');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
         });
     }
 
-    function goToSlide(index) {
-        currentIndex = index;
-        updateCarousel();
-    }
+    const contactForm = document.getElementById('contactForm');
+    const formMessage = document.querySelector('.form-message');
 
-    function nextSlide() {
-        currentIndex = (currentIndex + 1) % slides.length;
-        updateCarousel();
-    }
+    if (contactForm) {
+        contactForm.addEventListener('submit', (event) => {
+            event.preventDefault();
 
-    function prevSlide() {
-        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-        updateCarousel();
-    }
+            const formData = new FormData(contactForm);
+            const name = formData.get('name')?.toString().trim();
+            const phone = formData.get('phone')?.toString().trim();
+            const email = formData.get('email')?.toString().trim();
+            const message = formData.get('message')?.toString().trim();
 
-    // Button event listeners
-    nextBtn.addEventListener("click", () => {
-        nextSlide();
-        resetAutoSlide();
-    });
-
-    prevBtn.addEventListener("click", () => {
-        prevSlide();
-        resetAutoSlide();
-    });
-
-    // Auto-scrolling every 3.5 seconds
-    function startAutoSlide() {
-        autoSlideInterval = setInterval(nextSlide, 3500);
-    }
-
-    function resetAutoSlide() {
-        clearInterval(autoSlideInterval);
-        startAutoSlide();
-    }
-
-    // Pause auto-sliding on hover
-    const carouselContainer = document.querySelector(".carousel-container");
-    carouselContainer.addEventListener("mouseenter", () => clearInterval(autoSlideInterval));
-    carouselContainer.addEventListener("mouseleave", startAutoSlide);
-
-    startAutoSlide();
-
-    // VIDEO PLAYLIST LOGIC
-    const videoPlayer = document.getElementById('videoPlayer');
-    const videoLabel = document.getElementById('videoLabel');
-    const prevVideoBtn = document.getElementById('prevVideoBtn');
-    const nextVideoBtn = document.getElementById('nextVideoBtn');
-
-    const fallbackVideoPlaylist = [
-        { file: 'per-preform.mp4', title: 'PET Preform Manufacturing Video' }
-    ];
-    let videoPlaylist = [];
-    let currentVideoIndex = 0;
-
-    const getVideoUrl = (fileName) => `video/${fileName}`;
-
-    function loadVideo(index) {
-        if (!videoPlayer || !videoPlaylist.length) {
-            return;
-        }
-
-        currentVideoIndex = (index + videoPlaylist.length) % videoPlaylist.length;
-        const videoItem = videoPlaylist[currentVideoIndex];
-        videoPlayer.src = getVideoUrl(videoItem.file);
-        videoLabel.textContent = videoItem.title || videoItem.file;
-        videoPlayer.load();
-        videoPlayer.play().catch(() => {});
-    }
-
-    function nextVideo() {
-        loadVideo(currentVideoIndex + 1);
-    }
-
-    function prevVideo() {
-        loadVideo(currentVideoIndex - 1);
-    }
-
-    async function initVideoPlaylist() {
-        if (!videoPlayer) {
-            return;
-        }
-        try {
-            const response = await fetch('/api/videos');
-            const result = await response.json();
-            if (response.ok && result.success && Array.isArray(result.videos) && result.videos.length) {
-                videoPlaylist = result.videos;
-            } else {
-                videoPlaylist = fallbackVideoPlaylist;
+            if (!name || !phone || !email || !message) {
+                formMessage.textContent = 'Please fill in all required fields.';
+                formMessage.style.color = '#b00020';
+                return;
             }
-        } catch (error) {
-            videoPlaylist = fallbackVideoPlaylist;
-        }
-        loadVideo(0);
+
+            const subject = encodeURIComponent('New Inquiry from ' + name);
+            const body = encodeURIComponent(
+                'Name: ' + name + '\n' +
+                'Company: ' + (formData.get('company') || '') + '\n' +
+                'Phone: ' + phone + '\n' +
+                'Email: ' + email + '\n' +
+                'Product Requirement: ' + (formData.get('interest') || '') + '\n\n' +
+                'Message:\n' + message
+            );
+
+            window.location.href = 'mailto:infociplon@gmail.com?subject=' + subject + '&body=' + body;
+
+            formMessage.textContent = 'Thank you! Your inquiry has been prepared for email. We will contact you soon.';
+            formMessage.style.color = '#0b5d70';
+            contactForm.reset();
+        });
     }
-
-    if (videoPlayer) {
-        videoPlayer.addEventListener('ended', nextVideo);
-    }
-
-    if (prevVideoBtn) {
-        prevVideoBtn.addEventListener('click', prevVideo);
-    }
-
-    if (nextVideoBtn) {
-        nextVideoBtn.addEventListener('click', nextVideo);
-    }
-
-    initVideoPlaylist();
-
-});
-
-// Mobile Hamburger Menu Toggle
-const menuToggle = document.querySelector('.menu-toggle');
-const navLinks = document.querySelector('.nav-links');
-
-if (menuToggle) {
-    menuToggle.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-    });
-}
-
-// Close mobile menu when a navigation link is clicked
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        if (navLinks.classList.contains('active')) {
-            navLinks.classList.remove('active');
-        }
-    });
 });
