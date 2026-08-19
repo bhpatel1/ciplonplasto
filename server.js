@@ -1,14 +1,33 @@
 const express = require('express');
-const cors = require('cors');
+const helmet = require('helmet');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.disable('x-powered-by');
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            baseUri: ["'self'"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com'],
+            frameAncestors: ["'self'"],
+            frameSrc: ["'self'", 'https://www.google.com'],
+            imgSrc: ["'self'", 'data:'],
+            objectSrc: ["'none'"],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com']
+        }
+    }
+}));
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(__dirname, {
+    dotfiles: 'deny',
+    index: 'index.html'
+}));
 
 app.get('/api/videos', (req, res) => {
     const videoDir = path.join(__dirname, 'video');
